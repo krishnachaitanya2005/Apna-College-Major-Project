@@ -1,27 +1,32 @@
 <% layout("layouts/boilerplate") %>
-<body>
+
+    <body>
         <script>
             const mapToken = "<%= process.env.MAP_TOKEN %>";
-            const listing = <%- JSON.stringify(listing) %>; 
+            const listing = <%- JSON.stringify(listing) %>;
         </script>
-        <div class="row mt-3">
-            <div class="col-8 offset-3">
-                <h3>
-                    <%= listing.title %>
-                </h3>
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center">
+                        <%= listing.title %>
+                    </h3>
+                </div>
             </div>
-            <div class="card col-6 offset-3 show-card listing-card">
+        </div>
+
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-12 mb-4">
                 <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
-                <div class="card-body">
-                    <p class="card-text">Owned by
-                        <i>
+                <div class="card-body p-0"> <!-- Removed padding for a cleaner look -->
+                    <p class="card-text mt-3">Owned by <i>
                             <%= listing.owner.username %>
-                        </i>
-                    </p>
+                        </i></p>
                     <p>
                         <%= listing.description %>
                     </p>
-                    <p> &#8377;<%= listing.price.toLocaleString("en-IN") %>
+                    <p>&#8377;<%= listing.price.toLocaleString("en-IN") %>
                     </p>
                     <p>
                         <%= listing.location %>
@@ -31,18 +36,26 @@
                     </p>
                 </div>
             </div>
-            <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+        </div>
 
-                <div class="btns">
-                    <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
-                    <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
-                        <button class="btn btn-dark offset-5">Delete</button>
+        <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-12 d-flex gap-3"> <!-- Flex for button alignment -->
+                    <a href="/listings/<%= listing._id %>/edit" class="btn text-white"
+                        style="background-color: #fe424d;">
+                        Edit
+                    </a>
+                    <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="m-0">
+                        <button class="btn btn-dark">Delete</button>
                     </form>
                 </div>
-                <% } %>
+            </div>
+            <% } %>
 
-                    <div class="col-8 offset-3 mb-3">
-                        <% if (currUser) { %>
+
+                <% if (currUser) { %>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 col-md-8 col-12">
                             <hr>
                             <h4>Leave a Review</h4>
                             <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate
@@ -70,42 +83,59 @@
                                         class="form-control" required></textarea>
                                     <div class="invalid-feedback">Please add some comment for review</div>
                                 </div>
-                                <button class="btn btn-outline-dark">Submit</button>
+                                <button class="btn btn-outline-dark btn-sm">Submit</button>
+
                             </form>
                             <hr>
-                            <% } %>
-                                <% if (listing.reviews.length> 0) { %>
+                        </div>
+                    </div>
+                    <% } %>
 
-                                    <div class="row">
-                                        <p><b>All Reviews</b></p>
-                                        <% for( review of listing.reviews ) { %>
-                                            <div class="card col-5 ms-3 mb-3">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">
-                                                        @<%= review.author.username %>
-                                                    </h5>
-                                                    <p class="starability-result card-text"
-                                                        data-rating="<%= review.rating %>">
-                                                    </p>
-                                                    <p class="card-text">
-                                                        <%= review.comment %>
-                                                    </p>
-                                                </div>
-                                                <form class="mb-3" method="POST"
+                        <% if (listing.reviews.length> 0) { %>
+                            <div class="row justify-content-center">
+                                <div class="col-lg-6 col-md-8 col-12">
+                                    <p><b>All Reviews</b></p>
+                                    <% for (review of listing.reviews) { %>
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">@<%= review.author.username %>
+                                                </h5>
+                                                <p class="starability-result card-text"
+                                                    data-rating="<%= review.rating %>"></p>
+                                                <p class="card-text">
+                                                    <%= review.comment %>
+                                                </p>
+                                                <form method="POST"
                                                     action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
                                                     <button class="btn btn-sm btn-dark">Delete</button>
                                                 </form>
                                             </div>
-                                            <% } %>
+                                        </div>
+                                        <% } %>
+                                </div>
+                            </div>
+                            <% } %>
+
+                                <div class="row justify-content-center mb-5">
+                                    <div class="col-lg-6 col-md-8 col-12">
+                                        <h3>Where you'll be</h3>
+                                        <div id="map" class="w-100 rounded"></div>
                                     </div>
-                                    <% } %>
-                    </div>
-                    <div class="col-8 offset-3 mb-3">
-                        <h3>Where you'll be</h3>
-                        <div id="map"></div>
-                    </div>
-        </div>
+                                </div>
+                                </div>
 
-        <script src="/js/map.js"></script>
+                                <script src="/js/map.js"></script>
 
+                                <style>
+                                    #map {
+                                        height: 400px;
+                                    }
+
+                                    @media (max-width: 768px) {
+                                        .card {
+                                            margin-left: 0 !important;
+                                            margin-right: 0 !important;
+                                        }
+                                    }
+                                </style>
     </body>
